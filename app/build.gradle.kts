@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mobiletomobile"
+    namespace = "com.playsync.mirroring"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.mobiletomobile"
+        applicationId = "com.playsync.mirroring"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -26,11 +26,14 @@ android {
 //            applicationIdSuffix = ".debug"
             isMinifyEnabled = false
             manifestPlaceholders+= mapOf("admob_app_id" to "ca-app-pub-3940256099942544~3347511713")
+            buildConfigField(type="String",name="PRIVACY_POLICY", value = "\"https://sites.google.com/view/m2mprivacypolicy\"")
+
             proguardFiles (getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
         release {
             isMinifyEnabled = false
             manifestPlaceholders+= mapOf("admob_app_id" to "ca-app-pub-3940256099942544~3347511713")
+            buildConfigField(type="String",name="PRIVACY_POLICY", value = "https://sites.google.com/view/m2mprivacypolicy")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

@@ -16,6 +16,14 @@
         android:layout_gravity="center"
         android:layout_marginHorizontal="@dimen/_30sdp"
         />
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:visibility="visible"
+        android:layout_marginBottom="@dimen/_10sdp"
+        />
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottieStart"
         android:layout_gravity="bottom"
@@ -23,7 +31,7 @@
         android:layout_height="@dimen/_50sdp"
         android:padding="@dimen/_8sdp"
         app:lottie_autoPlay="true"
-
+        android:visibility="gone"
         app:lottie_loop="true"
         android:layout_marginHorizontal="@dimen/_20sdp"
         app:lottie_rawRes="@raw/splash_start"

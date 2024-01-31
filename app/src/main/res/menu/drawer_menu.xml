@@ -16,6 +16,10 @@
         android:title="Feedback" />
 
     <item
+        android:id="@+id/navPrivacyPolicy"
+        android:icon="@drawable/baseline_privacy_tip_24"
+        android:title="Privacy Policy" />
+    <item
         android:id="@+id/navShareApp"
         android:icon="@drawable/share_ic"
         android:title="Share Apps" />
