@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="app_color">#516EEF</color>
+    <color name="red">#D80D2C</color>
+    <color name="transparent">#0000ffff</color>
+
+    <color name="pointer_clr_red">#EF4444</color>
+    <color name="pointer_clr_orange">#F97316</color>
+    <color name="pointer_clr_yellow">#FACC15</color>
+    <color name="pointer_clr_green">#4ADE80</color>
+    <color name="pointer_clr_teal">#2DD4BF</color>
+    <color name="pointer_clr_blue">#3B82F6</color>
+    <color name="pointer_clr_indigo">#6467F2</color>
+
+</resources>

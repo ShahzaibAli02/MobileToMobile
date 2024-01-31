@@ -1,0 +1,55 @@
+<resources>
+    <string name="app_name">Mobile To Mobile Mirroring</string>
+
+    <string name="ad_free_version">Ad Free Experience</string>
+    <string name="no_commitment_cancel_anytime">Get all the new exciting features</string>
+    <string name="access_premium_only_features">Documents Mirroring</string>
+    <string name="fast_and_reliable_connections">Free Trending Videos</string>
+    <string name="ad_free_experience">70K+ TV models supported</string>
+    <string name="price_text"> /Lifetime. Cancel any time.</string>
+    <string name="ready_to_go">Get Pro Version</string>
+    <string name="cont">Continue</string>
+    <string name="title">Title</string>
+
+    <string name="share_screen">Share Screen</string>
+    <string name="share_screen_subtitle">Tap start button to allow other user to see your screen.</string>
+    <string name="remote_screen">Remote Screen</string>
+    <string name="remote_screen_subtitle">Tap start button to make connection with your partner.</string>
+    <string name="share_address">Share Address</string>
+    <string name="invite_your_partner_by_sharing_this_code">Invite your partner by sharing this code</string>
+    <string name="share_code">Share Code</string>
+    <string name="stop_sharing">Stop Sharing</string>
+    <string name="audio">Audio</string>
+    <string name="share_via">Share Via</string>
+    <string name="_232_232_232">232 232 232</string>
+    <string name="skype">Skype</string>
+    <string name="gmail">Gmail</string>
+    <string name="please_wait">Please Wait</string>
+    <string name="remote_address">Remote Address</string>
+    <string name="paste_your_partner_s_code_here_below">Paste your partner\'s code here below.</string>
+    <string name="click_next_to_create_room">Click Next to Create Room</string>
+    <string name="we_are_generating_a_code_for_remote_access">We are generating a code for remote access.</string>
+    <string name="copy">Copy</string>
+
+    <string name="share_audio_with_screen">share audio with screen</string>
+    <string name="your_code">Your Code</string>
+    <string name="_02_00">02:00</string>
+    <string name="please_wait_for_a_while_we_are_waiting_for_the_other_user_to_connect">Please wait for a while, we are waiting for the other user to connect.</string>
+    <string name="select_color">select color</string>
+    <string name="color">color</string>
+    <string name="make_sure_your_phone_and_tv_are_connected_to_the_n_same_wi_fi_network">Make sure your Phone and TV are connected to the \n same Wi-Fi network</string>
+    <string name="paste">Paste</string>
+    <string name="clear">Clear</string>
+    <string name="we_need_this_permission_to_let_your_friends_use_the_pointer_on_your_screen_nsteps">We need this permission to let your friends use the pointer on your screen.\nSteps:</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="find_the_application_name_screen_share_like_the_icon_below">Find the Application name \'Screen Share\' like the icon below.</string>
+    <string name="allow_the_application_to_appear_on_top_or_overlay_permission">Allow the application to appear on top (or Overlay permission)</string>
+    <string name="return_back_to_the_application">Return back to the application</string>
+    <string name="share_you_screen_with_your_friends">Share you screen with your friends.</string>
+    <string name="pointer_color">Pointer Color</string>
+    <string name="pointer_size">Pointer Size</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="navigation_drawer_open">Drawer Open</string>
+    <string name="navigation_drawer_close">Drawer Close</string>
+
+</resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navPointer"
+        android:icon="@drawable/pointer_ic_menu"
+        android:title="Pointer Setting" />
+
+    <item
+        android:id="@+id/navPremium"
+        android:icon="@drawable/premium_ic"
+        android:title="Go Premium" />
+
+    <item
+        android:id="@+id/navFeedback"
+        android:icon="@drawable/feedback_ic"
+        android:title="Feedback" />
+
+    <item
+        android:id="@+id/navShareApp"
+        android:icon="@drawable/share_ic"
+        android:title="Share Apps" />
+
+    <item
+        android:id="@+id/navExit"
+        android:icon="@drawable/exit_ic"
+        android:title="Exit" />
+</menu>
