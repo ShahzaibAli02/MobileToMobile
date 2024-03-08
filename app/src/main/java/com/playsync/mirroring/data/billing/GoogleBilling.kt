@@ -22,8 +22,13 @@ class GoogleBilling(private val activity: Activity) : PurchasesUpdatedListener {
         var subYearlyPrice : String? = null
         var inAppAllPrice : String? = null
 
+
+
     }
 
+    val SKU_ID_MONTHLY="m2m_new_monthly";
+    val SKU_ID_YEARLY="m2m_yearly";
+    val INAPP_ID="m2m_unlimited";
     var billingDisconnectedCounter = 0
     fun init() {
         billingClient = BillingClient.newBuilder(activity).setListener(this).enablePendingPurchases().build()
@@ -54,20 +59,16 @@ class GoogleBilling(private val activity: Activity) : PurchasesUpdatedListener {
         val subsSkuList = ArrayList<String>()
         val inAppSkuList = ArrayList<String>()
 
-        if (BuildConfig.DEBUG){
-            subsSkuList.add("android.test.purchased")
-            subsSkuList.add("android.test.purchased")
-            inAppSkuList.add("android.test.purchased")
-        }else{
-            subsSkuList.add("your_yearly_id_here")
-            subsSkuList.add("youe_monthly_id_here")
-            inAppSkuList.add("your_unlimited_id_here")
-        }
+
+        subsSkuList.add(SKU_ID_MONTHLY)
+        subsSkuList.add(SKU_ID_YEARLY)
+        inAppSkuList.add(INAPP_ID)
 
         val subsParams = SkuDetailsParams.newBuilder()
             .setType(BillingClient.SkuType.SUBS)
             .setSkusList(subsSkuList)
             .build()
+
         billingClient.querySkuDetailsAsync(subsParams) { billingResult, subsSkuDetailsList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && subsSkuDetailsList != null) {
                 subsSkuDetailsList.forEach{
@@ -77,6 +78,7 @@ class GoogleBilling(private val activity: Activity) : PurchasesUpdatedListener {
 
                 subMonthlyPrice = mSubsSkuDetailsList[0].price
                 subYearlyPrice = mSubsSkuDetailsList[1].price
+
                 mSubsSkuDetailsList.forEach {
                     Log.e("billing", "querySkuDetails: ${it.sku}")
                 }
@@ -136,26 +138,12 @@ class GoogleBilling(private val activity: Activity) : PurchasesUpdatedListener {
     }
     override fun onPurchasesUpdated(billingResult: BillingResult, purchases: List<Purchase>?) {
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
-            if (BuildConfig.DEBUG){
-                for (purchase in purchases) {
-                    for (skuId in purchase.skus) {
-                        when (skuId) {
-
-                            "android.test.purchased" -> handleInAppSkuForAllPurchase(purchase)
-                            "android.test.purchased" -> handleSubSkuForMonthlyPurchase(purchase)
-                            "android.test.purchased" ->  handleSubSkuForYearlyPurchase(purchase)
-                        }
-                    }
-                }
-            }else{
-                for (purchase in purchases) {
-                    for (skuId in purchase.skus) {
-                        when (skuId) {
-
-                            BuildConfig.APPLICATION_ID -> handleInAppSkuForAllPurchase(purchase) //for all ads purchase
-                            "monthly_id_here" -> handleSubSkuForMonthlyPurchase(purchase) //for week purchase
-                            "yearly_id_here" -> handleSubSkuForYearlyPurchase(purchase) //for month purchase
-                        }
+            for (purchase in purchases) {
+                for (skuId in purchase.skus) {
+                    when (skuId) {
+                        INAPP_ID-> handleInAppSkuForAllPurchase(purchase) //for all ads purchase
+                        SKU_ID_MONTHLY -> handleSubSkuForMonthlyPurchase(purchase) //for week purchase
+                       SKU_ID_YEARLY -> handleSubSkuForYearlyPurchase(purchase) //for month purchase
                     }
                 }
             }

@@ -78,14 +78,14 @@ class PremiumActivity : AppCompatActivity(), View.OnClickListener {
                             PlanType.YEARLY -> {
                                 GoogleBilling(this@PremiumActivity).launchSubsBillingFlow(
                                     this@PremiumActivity,
-                                    1
+                                    0
                                 )
                             }
 
                             PlanType.MONTHLY -> {
                                 GoogleBilling(this@PremiumActivity).launchSubsBillingFlow(
                                     this@PremiumActivity,
-                                    0
+                                    1
                                 )
                             }
                         }

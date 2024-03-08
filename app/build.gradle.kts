@@ -13,8 +13,8 @@ android {
         applicationId = "com.playsync.mirroring"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -25,21 +25,28 @@ android {
 
 //            applicationIdSuffix = ".debug"
             isMinifyEnabled = false
-            manifestPlaceholders+= mapOf("admob_app_id" to "ca-app-pub-3940256099942544~3347511713")
+            manifestPlaceholders+= mapOf("admob_app_id" to "ca-app-pub-3477055393019732~3736001735")
             buildConfigField(type="String",name="PRIVACY_POLICY", value = "\"https://sites.google.com/view/m2mprivacypolicy\"")
 
             proguardFiles (getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
         release {
             isMinifyEnabled = false
-            manifestPlaceholders+= mapOf("admob_app_id" to "ca-app-pub-3940256099942544~3347511713")
-            buildConfigField(type="String",name="PRIVACY_POLICY", value = "https://sites.google.com/view/m2mprivacypolicy")
+            manifestPlaceholders+= mapOf("admob_app_id" to "ca-app-pub-3477055393019732~3736001735")
+            buildConfigField(type="String",name="PRIVACY_POLICY", value = "" +
+                    "\"https://sites.google.com/view/m2mprivacypolicy\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
     }
+
+    /*
+
+    keyeAlias=key0m2m
+    keyPass=key0m2m
+     */
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8

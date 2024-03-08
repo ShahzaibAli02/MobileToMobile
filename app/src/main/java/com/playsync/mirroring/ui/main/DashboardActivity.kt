@@ -36,6 +36,7 @@ class DashboardActivity : AppCompatActivity(), View.OnClickListener {
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setClickListeners()
+
         if (RemoteDataConfig.remoteAdSettings.dash_banner.value == "on"
             && !checkIfUserIsPro()
         ) {
@@ -95,12 +96,10 @@ class DashboardActivity : AppCompatActivity(), View.OnClickListener {
                     R.id.navShareApp -> {
 
                         drawerLayout.close()
-                        val appLink =
-                            "Share and mirror content wirelessly with our user-friendly screen-sharing app.\nHere is our App link:\nhttps://play.google.com/store/apps/details?id=${APPLICATION_ID}"
+                        val appLink = "Lets share screen together with awesome app: https://play.google.com/store/apps/details?id=${APPLICATION_ID}"
                         val shareIntent = Intent(Intent.ACTION_SEND)
                         shareIntent.type = "text/plain"
                         shareIntent.putExtra(Intent.EXTRA_TEXT, appLink)
-                        shareIntent.setPackage(packageName)
                         startActivity(shareIntent)
                     }
                     R.id.navPrivacyPolicy -> {
