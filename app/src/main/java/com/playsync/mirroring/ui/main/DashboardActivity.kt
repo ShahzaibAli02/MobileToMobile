@@ -54,7 +54,24 @@ class DashboardActivity : AppCompatActivity(), View.OnClickListener {
         } else {
             binding.bannerFrame.gone()
         }
-
+        if(!checkIfUserIsPro() && intent.getBooleanExtra("isFromSplash",false))
+        {
+            val loadingDialog = AdmobLoadingDialog(this@DashboardActivity)
+            loadingDialog.show()
+            afterDelay(2000) {
+                loadingDialog.dismiss()
+                AdmobInter.showAdmobInter(this@DashboardActivity,
+                        {
+                            //impression listener
+                        },
+                        {
+                            // dismissed listener
+                        },
+                        {
+                            //failed listener
+                        })
+            }
+        }
         binding.apply {
 
             toolbar.drawerIcon.setOnClickListener {
@@ -123,6 +140,8 @@ class DashboardActivity : AppCompatActivity(), View.OnClickListener {
                 true
             }
         }
+
+
     }
 
     override fun onBackPressed() {

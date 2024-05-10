@@ -466,11 +466,9 @@ class RemoteCodeActivity : AppCompatActivity(), View.OnClickListener {
                 }
 
                 pasteConstraint -> {
-                    val clipboardManager =
-                        getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    val clipboardManager: ClipboardManager? = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
-
-                    if (clipboardManager.primaryClip != null) {
+                    if (clipboardManager?.primaryClip != null) {
 
                         clipboardManager.apply {
                             if (hasPrimaryClip() && primaryClipDescription!!.hasMimeType(
@@ -511,7 +509,7 @@ class RemoteCodeActivity : AppCompatActivity(), View.OnClickListener {
 
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        clipboardManager.clearPrimaryClip()
+                        clipboardManager?.clearPrimaryClip()
                     }
                 }
 

@@ -7,6 +7,7 @@ import android.app.Dialog
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
@@ -21,6 +22,7 @@ import android.view.WindowManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.playsync.mirroring.BuildConfig.APPLICATION_ID
 import com.playsync.mirroring.R
 import com.playsync.mirroring.data.interfaces.RoomListenerHandler
@@ -52,7 +54,8 @@ import com.twilio.video.TwilioException
 
 
 @Suppress("DEPRECATION")
-class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
+class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler
+{
 
     private var sharedPrefs: SharedPrefs? = null
 
@@ -65,7 +68,8 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
     private var localAudioTrack: LocalAudioTrack? = null
     private var isSharingAudio: Boolean = false
 
-    companion object {
+    companion object
+    {
         const val TAG = "ViewRemote"
         var localDataTrack: LocalDataTrack? = null
     }
@@ -73,7 +77,8 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
     private var drawBallView: DrawBallView? = null
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
         super.onCreate(savedInstanceState)
 
         binding = ActivityViewRemoteScreenBinding.inflate(layoutInflater)
@@ -92,7 +97,8 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
         drawBallView = DrawBallView(this)
         setBallPointerOnScreen()
 
-        if (isAudioSwitchOn){
+        if (isAudioSwitchOn)
+        {
             shareAudio()
             binding?.apply {
                 toolbar.audioSwitch.isChecked = isAudioSwitchOn
@@ -102,8 +108,8 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
 
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
+    @Deprecated("Deprecated in Java") override fun onBackPressed()
+    {
         StopMirroringDialog(this@ViewRemoteScreenActivity) {
             room?.disconnect()
             finish()
@@ -111,20 +117,28 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
 
     }
 
-    @SuppressLint("ClickableViewAccessibility", "LongLogTag")
-    private fun setBallPointerOnScreen() {
+    @SuppressLint(
+            "ClickableViewAccessibility",
+            "LongLogTag"
+    ) private fun setBallPointerOnScreen()
+    {
 
 
         val rootLayout = binding?.mainContent
 
-        if (sharedPrefs?.getDrawBallViewColor() == 0) {
+        if (sharedPrefs?.getDrawBallViewColor() == 0)
+        {
             drawBallView?.ballColor = Color.BLUE
-        } else {
-            Log.d(TAG, "setBallPointerOnScreen: " + sharedPrefs!!.getDrawBallViewColor())
-//            drawBallView?.ballColor = sharedPrefs?.getDrawBallViewColor()!!.toInt()
+        } else
+        {
+            Log.d(
+                    TAG,
+                    "setBallPointerOnScreen: " + sharedPrefs!!.getDrawBallViewColor()
+            ) //            drawBallView?.ballColor = sharedPrefs?.getDrawBallViewColor()!!.toInt()
         }
 
-        if (sharedPrefs?.getDrawBallWidth() != "" && sharedPrefs?.getDrawBallHeight() != "" && sharedPrefs?.getDrawBallRadius() != "") {
+        if (sharedPrefs?.getDrawBallWidth() != "" && sharedPrefs?.getDrawBallHeight() != "" && sharedPrefs?.getDrawBallRadius() != "")
+        {
             drawBallView?.width = sharedPrefs?.getDrawBallWidth()!!.toFloat()
             drawBallView?.height = sharedPrefs?.getDrawBallHeight()!!.toFloat()
             drawBallView?.radius = sharedPrefs?.getDrawBallRadius()!!.toFloat()
@@ -134,11 +148,13 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
         rootLayout?.setOnTouchListener { _, motionEvent ->
 
             drawBallView?.let {
-                if (motionEvent.action == MotionEvent.ACTION_UP) {
+                if (motionEvent.action == MotionEvent.ACTION_UP)
+                {
                     it.beInVisible()
                 }
 
-                if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                if (motionEvent.action == MotionEvent.ACTION_DOWN)
+                {
                     it.visible()
                 }
                 it.currX = motionEvent!!.x
@@ -146,10 +162,8 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
             }
 
 
-
             val x = motionEvent.x.toInt()
-            val y = motionEvent.y.toInt()
-            // Get the screen dimensions
+            val y = motionEvent.y.toInt() // Get the screen dimensions
 
             val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
             val display: Display = wm.defaultDisplay
@@ -165,14 +179,26 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
             val normalizedY = y.toFloat() / screenHeight.toFloat()
 
 
-            Log.e(TAG, "setBallPointerOnScreen: before x = ${motionEvent.x}")
-            Log.e(TAG, "setBallPointerOnScreen: before y = ${motionEvent.y}")
+            Log.e(
+                    TAG,
+                    "setBallPointerOnScreen: before x = ${motionEvent.x}"
+            )
+            Log.e(
+                    TAG,
+                    "setBallPointerOnScreen: before y = ${motionEvent.y}"
+            )
 
             // Normalize the touch coordinates
 
 
-            Log.e(TAG, "setBallPointerOnScreen: after x = $normalizedX")
-            Log.e(TAG, "setBallPointerOnScreen: after y = $normalizedY")
+            Log.e(
+                    TAG,
+                    "setBallPointerOnScreen: after x = $normalizedX"
+            )
+            Log.e(
+                    TAG,
+                    "setBallPointerOnScreen: after y = $normalizedY"
+            )
 
             val modelMessage = MotionMessage()
 
@@ -181,29 +207,35 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
             modelMessage.xCoordinate = normalizedX
             modelMessage.yCoordinate = normalizedY
             modelMessage.action = motionEvent.action
-            if (sharedPrefs?.getDrawBallViewColor() != 0) {
+            if (sharedPrefs?.getDrawBallViewColor() != 0)
+            {
                 modelMessage.color = sharedPrefs?.getDrawBallViewColor()!!.toInt()
-            } else {
+            } else
+            {
                 modelMessage.color = Color.BLUE
             }
 
             modelMessage.screenHeight = screenHeight
-            if (sharedPrefs?.getDrawBallWidth() != "" && sharedPrefs?.getDrawBallHeight() != "" && sharedPrefs?.getDrawBallRadius() != "") {
+            if (sharedPrefs?.getDrawBallWidth() != "" && sharedPrefs?.getDrawBallHeight() != "" && sharedPrefs?.getDrawBallRadius() != "")
+            {
                 modelMessage.height = SharedPrefs(this).getDrawBallHeight().toFloat()
                 modelMessage.width = SharedPrefs(this).getDrawBallWidth().toFloat()
                 modelMessage.radius = SharedPrefs(this).getDrawBallRadius().toFloat()
             }
 
 
-            Log.d(TAG, "setBallPointerOnScreen: " + modelMessage.screenHeight)
+            Log.d(
+                    TAG,
+                    "setBallPointerOnScreen: " + modelMessage.screenHeight
+            )
 
             val gson = Gson()
 
             val coordinates = gson.toJson(modelMessage)
 
             localDataTrack?.send(coordinates) ?: Log.e(
-                TAG,
-                "Ignoring touch event because data track is released"
+                    TAG,
+                    "Ignoring touch event because data track is released"
             )
 
             drawBallView!!.invalidate()
@@ -214,7 +246,8 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
         //rootLayout!!.addView(drawBallView)
     }
 
-    private fun showPermissionDialog() {
+    private fun showPermissionDialog()
+    {
         val permissionDialog = AlertDialog.Builder(this)
         permissionDialog.setTitle("Permission required")
         permissionDialog.setMessage("Please grant access to mic if you want to share audio.")
@@ -231,19 +264,22 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
         permissionDialog.show()
     }
 
-    private fun setToolBar() {
+    private fun setToolBar()
+    {
 
         binding?.toolbar?.apply {
             audioSwitch.setOnCheckedChangeListener { _, b ->
 
-                if (b) {
+                if (b)
+                {
                     shareAudio()
-                } else {
+                } else
+                {
                     stopSharingAudio()
                 }
             }
 
-            stopBtn.setOnClickListener{
+            stopBtn.setOnClickListener {
                 onBackPressed()
             }
 
@@ -256,15 +292,11 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
         }
 
 
-
-
-
-
     }
 
 
-
-    private fun setIsSharingAudio(isSharing: Boolean) {
+    private fun setIsSharingAudio(isSharing: Boolean)
+    {
 
 
         isSharingAudio = isSharing
@@ -273,25 +305,44 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
 
     }
 
-    private fun stopSharingAudio() {
+    private fun stopSharingAudio()
+    {
         setIsSharingAudio(false)
-        if (localAudioTrack != null) {
+        if (localAudioTrack != null)
+        {
             localParticipant?.unpublishTrack(localAudioTrack!!)
         }
 
     }
 
-    private fun shareAudio() {
+    private fun shareAudio()
+    {
 
-        PermissionX.init(this)
-            .permissions(Manifest.permission.RECORD_AUDIO)
+        PermissionX.init(this).permissions(Manifest.permission.RECORD_AUDIO)
             .request { allGranted, _, _ ->
-                if (allGranted) {
-                    localAudioTrack = LocalAudioTrack.create(this, true)
-                    val hasPublished = localParticipant?.publishTrack(localAudioTrack!!)
-                    Log.d("HAS PUBLISHED", "$hasPublished")
-                    setIsSharingAudio(true)
-                } else {
+                if (allGranted)
+                { //check if have RECORD_AUDIO PERMISSION
+                    if (ContextCompat.checkSelfPermission(
+                                this,
+                                Manifest.permission.RECORD_AUDIO
+                        ) == PackageManager.PERMISSION_GRANTED
+                    )
+                    {
+                        localAudioTrack = LocalAudioTrack.create(
+                                this,
+                                true
+                        )
+                        val hasPublished = localParticipant?.publishTrack(localAudioTrack!!)
+                        Log.d(
+                                "HAS PUBLISHED",
+                                "$hasPublished"
+                        )
+                        setIsSharingAudio(true)
+                    }
+
+
+                } else
+                {
                     setIsSharingAudio(false)
                     stopSharingAudio()
                     showPermissionDialog()
@@ -301,16 +352,22 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
 
     }
 
-    private fun setIsLoading(isLoading: Boolean) {
-        if (activityRunning) {
+    private fun setIsLoading(isLoading: Boolean)
+    {
+        if (activityRunning)
+        {
 
 
-            if (isLoading) {
-                if (!loadingDialogBuilder.isShowing) {
+            if (isLoading)
+            {
+                if (!loadingDialogBuilder.isShowing)
+                {
                     loadingDialogBuilder.show()
                 }
-            } else {
-                if (loadingDialogBuilder.isShowing) {
+            } else
+            {
+                if (loadingDialogBuilder.isShowing)
+                {
                     loadingDialogBuilder.dismiss()
                 }
             }
@@ -319,26 +376,34 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
     }
 
 
-    @SuppressLint("LongLogTag")
-    override fun onConnected(r: Room) {
+    @SuppressLint("LongLogTag") override fun onConnected(r: Room)
+    {
 
         room = r
         localParticipant = r.localParticipant
 
         setIsLoading(false)
         val remoteParticipants = room!!.remoteParticipants
-        for (remoteParticipant in remoteParticipants) {
+        for (remoteParticipant in remoteParticipants)
+        {
             val remoteVideoTrackPublications = remoteParticipant.remoteVideoTracks
             val remoteAudioTrackPublications = remoteParticipant.remoteAudioTracks
             val remoteDataTrackPublications = remoteParticipant.remoteDataTracks
 
-            Log.d(TAG, "onConnected: $remoteDataTrackPublications")
+            Log.d(
+                    TAG,
+                    "onConnected: $remoteDataTrackPublications"
+            )
 
-            Log.i("REMOTE AUDIO TRACKS", remoteAudioTrackPublications.size.toString())
-            remoteParticipant.setListener(remoteParticipantListener())
-            //set up listeners for each participant. This will allow them to listen to subscription events
-            if (remoteVideoTrackPublications.isNotEmpty()) {
-                if (remoteVideoTrackPublications.first().isTrackSubscribed) {
+            Log.i(
+                    "REMOTE AUDIO TRACKS",
+                    remoteAudioTrackPublications.size.toString()
+            )
+            remoteParticipant.setListener(remoteParticipantListener()) //set up listeners for each participant. This will allow them to listen to subscription events
+            if (remoteVideoTrackPublications.isNotEmpty())
+            {
+                if (remoteVideoTrackPublications.first().isTrackSubscribed)
+                {
                     val videoTrack = remoteVideoTrackPublications.first().remoteVideoTrack
                     videoTrack?.addSink(binding?.remoteVideoView!!)
                 }
@@ -348,45 +413,62 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
         }
     }
 
-    override fun onDisconnected(room: Room, twilioException: TwilioException?) {
-        Toast.makeText(this@ViewRemoteScreenActivity, "Disconnected", Toast.LENGTH_SHORT)
-            .show()
-//            setIsLoading(false)
-        Log.d(TAG, "Room disconnected")
+    override fun onDisconnected(room: Room, twilioException: TwilioException?)
+    {
+        Toast.makeText(
+                this@ViewRemoteScreenActivity,
+                "Disconnected",
+                Toast.LENGTH_SHORT
+        ).show() //            setIsLoading(false)
+        Log.d(
+                TAG,
+                "Room disconnected"
+        )
         finish()
 
 
     }
 
-    override fun onReconnected(room: Room) {
-        Log.d(TAG, "RECONNECTED")
+    override fun onReconnected(room: Room)
+    {
+        Log.d(
+                TAG,
+                "RECONNECTED"
+        )
         setIsLoading(false)
     }
 
 
-    override fun onConnectFailure(room: Room, twilioException: TwilioException) {
+    override fun onConnectFailure(room: Room, twilioException: TwilioException)
+    {
         setIsLoading(false)
         Log.d(
-            TAG,
-            "Failed to connect ${twilioException.explanation} ${twilioException.message}"
+                TAG,
+                "Failed to connect ${twilioException.explanation} ${twilioException.message}"
         )
-        Toast.makeText(this@ViewRemoteScreenActivity, "Failed to connect", Toast.LENGTH_SHORT)
-            .show()
+        Toast.makeText(
+                this@ViewRemoteScreenActivity,
+                "Failed to connect",
+                Toast.LENGTH_SHORT
+        ).show()
         finish()
     }
 
 
-
-
-    override fun onParticipantDisconnected(r: Room, remoteParticipant: RemoteParticipant) {
+    override fun onParticipantDisconnected(r: Room, remoteParticipant: RemoteParticipant)
+    {
         showHostDisconnectedDialog()
 
     }
 
-    private fun showHostDisconnectedDialog() {
+    private fun showHostDisconnectedDialog()
+    {
         val dialogBuilder = AlertDialog.Builder(this)
         val inflater = this.layoutInflater
-        val dialogView = inflater.inflate(R.layout.host_disconnected_dialog, null)
+        val dialogView = inflater.inflate(
+                R.layout.host_disconnected_dialog,
+                null
+        )
         dialogBuilder.setView(dialogView)
         val alertDialog = dialogBuilder.create()
         val btnOK = dialogView.findViewById<TextView>(R.id.btnOK)
@@ -398,33 +480,45 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
         }
 
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        if (!isFinishing){
+        if (!isFinishing)
+        {
             alertDialog.show()
         }
     }
 
-    private fun remoteParticipantListener(): RemoteParticipant.Listener {
-        return object : RemoteParticipant.Listener {
+    private fun remoteParticipantListener(): RemoteParticipant.Listener
+    {
+        return object : RemoteParticipant.Listener
+        {
             override fun onAudioTrackPublished(
                 remoteParticipant: RemoteParticipant,
-                remoteAudioTrackPublication: RemoteAudioTrackPublication
-            ) {
+                remoteAudioTrackPublication: RemoteAudioTrackPublication,
+            )
+            {
 
-                Log.d(TAG, "onLocalAudioTrackPublished")
+                Log.d(
+                        TAG,
+                        "onLocalAudioTrackPublished"
+                )
             }
 
             override fun onAudioTrackUnpublished(
                 remoteParticipant: RemoteParticipant,
-                remoteAudioTrackPublication: RemoteAudioTrackPublication
-            ) {
+                remoteAudioTrackPublication: RemoteAudioTrackPublication,
+            )
+            {
             }
 
             override fun onAudioTrackSubscribed(
                 remoteParticipant: RemoteParticipant,
                 remoteAudioTrackPublication: RemoteAudioTrackPublication,
-                remoteAudioTrack: RemoteAudioTrack
-            ) {
-                Log.d(TAG, "onLocalAudioTrackSubscribed")
+                remoteAudioTrack: RemoteAudioTrack,
+            )
+            {
+                Log.d(
+                        TAG,
+                        "onLocalAudioTrackSubscribed"
+                )
                 remoteAudioTrack.enablePlayback(true)
                 val audioManager = getSystemService(Service.AUDIO_SERVICE) as AudioManager
                 audioManager.mode = AudioManager.MODE_NORMAL
@@ -436,24 +530,28 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
             override fun onAudioTrackSubscriptionFailed(
                 remoteParticipant: RemoteParticipant,
                 remoteAudioTrackPublication: RemoteAudioTrackPublication,
-                twilioException: TwilioException
-            ) {
+                twilioException: TwilioException,
+            )
+            {
             }
 
             override fun onAudioTrackUnsubscribed(
                 remoteParticipant: RemoteParticipant,
                 remoteAudioTrackPublication: RemoteAudioTrackPublication,
-                remoteAudioTrack: RemoteAudioTrack
-            ) {
+                remoteAudioTrack: RemoteAudioTrack,
+            )
+            {
             }
 
             override fun onVideoTrackPublished(
                 remoteParticipant: RemoteParticipant,
-                remoteVideoTrackPublication: RemoteVideoTrackPublication
-            ) {
+                remoteVideoTrackPublication: RemoteVideoTrackPublication,
+            )
+            {
                 val isNull = remoteVideoTrackPublication.remoteVideoTrack == null
 
-                if (!isNull) {
+                if (!isNull)
+                {
                     remoteVideoTrackPublication.remoteVideoTrack!!.addSink(binding?.remoteVideoView!!)
 
                 }
@@ -463,28 +561,40 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
 
             override fun onVideoTrackUnpublished(
                 remoteParticipant: RemoteParticipant,
-                remoteVideoTrackPublication: RemoteVideoTrackPublication
-            ) {
-                Log.d("UNPUBLISHED", "TRACK WAS UNPUBLISHED")
-                Log.d("UNPUBLISHED", remoteVideoTrackPublication.trackName)
+                remoteVideoTrackPublication: RemoteVideoTrackPublication,
+            )
+            {
+                Log.d(
+                        "UNPUBLISHED",
+                        "TRACK WAS UNPUBLISHED"
+                )
+                Log.d(
+                        "UNPUBLISHED",
+                        remoteVideoTrackPublication.trackName
+                )
 
             }
 
             override fun onVideoTrackSubscribed(
                 participant: RemoteParticipant,
                 remoteVideoTrackPublication: RemoteVideoTrackPublication,
-                remoteVideoTrack: RemoteVideoTrack
-            ) {
-                Log.d(TAG, "TRACK SUBSCRIBED!")
+                remoteVideoTrack: RemoteVideoTrack,
+            )
+            {
+                Log.d(
+                        TAG,
+                        "TRACK SUBSCRIBED!"
+                )
 
 
-                if (remoteVideoTrackPublication.isTrackSubscribed) {
+                if (remoteVideoTrackPublication.isTrackSubscribed)
+                {
                     remoteVideoTrackPublication.videoTrack?.addSink(binding?.remoteVideoView!!)
                 }
 
 
-//                binding?.fabToggleAudio?.visibility = View.VISIBLE
-//                setFullScreen(true)
+                //                binding?.fabToggleAudio?.visibility = View.VISIBLE
+                //                setFullScreen(true)
 
 
             }
@@ -492,31 +602,38 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
             override fun onVideoTrackSubscriptionFailed(
                 remoteParticipant: RemoteParticipant,
                 remoteVideoTrackPublication: RemoteVideoTrackPublication,
-                twilioException: TwilioException
-            ) {
+                twilioException: TwilioException,
+            )
+            {
 
             }
 
             override fun onVideoTrackUnsubscribed(
                 remoteParticipant: RemoteParticipant,
                 remoteVideoTrackPublication: RemoteVideoTrackPublication,
-                remoteVideoTrack: RemoteVideoTrack
-            ) {
+                remoteVideoTrack: RemoteVideoTrack,
+            )
+            {
 
             }
 
             override fun onDataTrackPublished(
                 remoteParticipant: RemoteParticipant,
-                remoteDataTrackPublication: RemoteDataTrackPublication
-            ) {
+                remoteDataTrackPublication: RemoteDataTrackPublication,
+            )
+            {
 
-                Log.d(TAG, "onLocalDataTrackPublished")
+                Log.d(
+                        TAG,
+                        "onLocalDataTrackPublished"
+                )
             }
 
             override fun onDataTrackUnpublished(
                 remoteParticipant: RemoteParticipant,
-                remoteDataTrackPublication: RemoteDataTrackPublication
-            ) {
+                remoteDataTrackPublication: RemoteDataTrackPublication,
+            )
+            {
 
 
             }
@@ -524,55 +641,61 @@ class ViewRemoteScreenActivity : AppCompatActivity(), RoomListenerHandler {
             override fun onDataTrackSubscribed(
                 remoteParticipant: RemoteParticipant,
                 remoteDataTrackPublication: RemoteDataTrackPublication,
-                remoteDataTrack: RemoteDataTrack
-            ) {
+                remoteDataTrack: RemoteDataTrack,
+            )
+            {
             }
 
             override fun onDataTrackSubscriptionFailed(
                 remoteParticipant: RemoteParticipant,
                 remoteDataTrackPublication: RemoteDataTrackPublication,
-                twilioException: TwilioException
-            ) {
+                twilioException: TwilioException,
+            )
+            {
             }
 
             override fun onDataTrackUnsubscribed(
                 remoteParticipant: RemoteParticipant,
                 remoteDataTrackPublication: RemoteDataTrackPublication,
-                remoteDataTrack: RemoteDataTrack
-            ) {
+                remoteDataTrack: RemoteDataTrack,
+            )
+            {
 
-                Log.d(TAG, "onLocalDataTrackSubscribed")
+                Log.d(
+                        TAG,
+                        "onLocalDataTrackSubscribed"
+                )
             }
 
             override fun onAudioTrackEnabled(
                 remoteParticipant: RemoteParticipant,
-                remoteAudioTrackPublication: RemoteAudioTrackPublication
-            ) {
+                remoteAudioTrackPublication: RemoteAudioTrackPublication,
+            )
+            {
             }
 
             override fun onAudioTrackDisabled(
                 remoteParticipant: RemoteParticipant,
-                remoteAudioTrackPublication: RemoteAudioTrackPublication
-            ) {
+                remoteAudioTrackPublication: RemoteAudioTrackPublication,
+            )
+            {
             }
 
             override fun onVideoTrackEnabled(
                 remoteParticipant: RemoteParticipant,
-                remoteVideoTrackPublication: RemoteVideoTrackPublication
-            ) {
+                remoteVideoTrackPublication: RemoteVideoTrackPublication,
+            )
+            {
             }
 
             override fun onVideoTrackDisabled(
                 remoteParticipant: RemoteParticipant,
-                remoteVideoTrackPublication: RemoteVideoTrackPublication
-            ) {
+                remoteVideoTrackPublication: RemoteVideoTrackPublication,
+            )
+            {
             }
         }
     }
-
-
-
-
 
 
 }

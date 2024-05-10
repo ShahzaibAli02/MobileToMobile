@@ -164,10 +164,11 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
 //                    .show()
 //            }
         } else {
-            if (!Settings.canDrawOverlays(this@ScreenSharingActivity)) {
-                showOverlayPermissionDialogue()
-            }
+//            if (!Settings.canDrawOverlays(this@ScreenSharingActivity)) {
+//                showOverlayPermissionDialogue()
+//            }
 
+            initSharing()
         }
 
         // Create the local data track
@@ -531,9 +532,8 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
 
     override fun onServiceStarted() {
         Handler(Looper.getMainLooper()).postDelayed({
-            //Do something after 100ms
-            screenCaptured =
-                ScreenCapturer(this, resultCode!!, data!!, screenCapturedListener)
+
+            screenCaptured = ScreenCapturer(this, resultCode!!, data!!, screenCapturedListener)
             val videoFormat = VideoFormat(VideoDimensions.HD_720P_VIDEO_DIMENSIONS, 24)
             localVideoTrack =
                 LocalVideoTrack.create(this, true, screenCaptured!!, videoFormat)
@@ -541,6 +541,7 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
             localParticipant?.publishTrack(localVideoTrack!!)
             getAccessToken()
             ScreenSharingForegroundService.currentCode = roomCode
+
         }, 1000)
     }
 
@@ -726,6 +727,11 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
     }
 
     private fun showParticipantDisconnectedDialog() {
+
+        //check if activity is running
+        if (isFinishing || isDestroyed) {
+            return
+        }
         val dialogBuilder = AlertDialog.Builder(this)
         val inflater = this.layoutInflater
         val dialogView = inflater.inflate(R.layout.participant_disconnected_dialog, null)
@@ -755,6 +761,10 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
     }
 
     private fun showParticipantJoinedDialog() {
+        //check if activity is running
+        if (isFinishing || isDestroyed) {
+            return
+        }
         val dialogBuilder = AlertDialog.Builder(this)
         val inflater = this.layoutInflater
         val dialogView = inflater.inflate(R.layout.participant_joined_dialog, null)
@@ -928,6 +938,11 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
 
 
     private fun setIsLoading(isLoading: Boolean) {
+        //check if activity is running
+        if (isFinishing || isDestroyed) {
+            return
+        }
+
         if (isLoading) {
             if (!loadingDialogBuilder.isShowing) {
                 loadingDialogBuilder.show()
