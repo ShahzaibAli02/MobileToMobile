@@ -14,6 +14,7 @@ import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -31,6 +32,8 @@ import androidx.cardview.widget.CardView
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.gson.JsonParser
+import com.permissionx.guolindev.PermissionX
 import com.playsync.mirroring.BuildConfig
 import com.playsync.mirroring.R
 import com.playsync.mirroring.data.service.GlobalTouchService
@@ -39,15 +42,14 @@ import com.playsync.mirroring.data.service.StartForegroundServiceCallback
 import com.playsync.mirroring.databinding.ActivityScreenSharingBinding
 import com.playsync.mirroring.ui.customViews.DrawBallView
 import com.playsync.mirroring.utils.afterDelay
-import com.playsync.mirroring.utils.gone
 import com.playsync.mirroring.utils.beInVisible
-import com.playsync.mirroring.utils.visible
 import com.playsync.mirroring.utils.getLoadingDialog
 import com.playsync.mirroring.utils.getRandomString
 import com.playsync.mirroring.utils.getRandomStringForRoom
-import com.google.gson.JsonParser
-import com.permissionx.guolindev.PermissionX
-import com.playsync.mirroring.utils.RemoteDataConfig
+import com.playsync.mirroring.utils.gone
+import com.playsync.mirroring.utils.visible
+import com.twilio.jwt.accesstoken.AccessToken
+import com.twilio.jwt.accesstoken.VideoGrant
 import com.twilio.video.ConnectOptions
 import com.twilio.video.EncodingParameters
 import com.twilio.video.H264Codec
@@ -72,6 +74,7 @@ import com.twilio.video.VideoFormat
 import org.json.JSONObject
 import org.json.JSONTokener
 import java.nio.ByteBuffer
+
 
 @Suppress("DEPRECATION")
 class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallback,
@@ -307,13 +310,19 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
             val foregroundServiceIntent =
                 Intent(this@ScreenSharingActivity, ScreenSharingForegroundService::class.java)
 
-            startService(foregroundServiceIntent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            {
+                startForegroundService(foregroundServiceIntent)
+            }
+            else {
+                startService(foregroundServiceIntent)
+            }
 
 
 
             this.resultCode = resultCode
             this.data = data
-//                }
+            generateScreenSharingCode()
 
             //after service has been started, the onServiceStart function in this class is called.
 
@@ -386,7 +395,7 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
 //    }
 
     private fun addRemoteDataTrack(
-        remoteParticipant: RemoteParticipant, remoteDataTrack: RemoteDataTrack
+        remoteParticipant: RemoteParticipant, remoteDataTrack: RemoteDataTrack,
     ) {
         dataTrackRemoteParticipantMap[remoteDataTrack] = remoteParticipant
         Log.d(TAG, "addRemoteDataTrack: $dataTrackRemoteParticipantMap")
@@ -494,7 +503,7 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
     {
         if (!ScreenSharingForegroundService.isRunning)
         {
-            generateScreenSharingCode()
+
             askScreenCapturePermissions()
         } else
         {
@@ -531,8 +540,15 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
 
 
     override fun onServiceStarted() {
+        Log.d(
+                TAG,
+                "onServiceStarted: "
+        )
         Handler(Looper.getMainLooper()).postDelayed({
-
+            Log.d(
+                    TAG,
+                    "onServiceStarted: screenCaptured "
+            )
             screenCaptured = ScreenCapturer(this, resultCode!!, data!!, screenCapturedListener)
             val videoFormat = VideoFormat(VideoDimensions.HD_720P_VIDEO_DIMENSIONS, 24)
             localVideoTrack =
@@ -541,6 +557,10 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
             localParticipant?.publishTrack(localVideoTrack!!)
             getAccessToken()
             ScreenSharingForegroundService.currentCode = roomCode
+            Log.d(
+                    TAG,
+                    "onServiceStarted: screenCaptured DONE "
+            )
 
         }, 1000)
     }
@@ -550,32 +570,47 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
         setIsLoading(true)
         val queue = Volley.newRequestQueue(this)
         val identity = getRandomString(8)
-        val url = "${RemoteDataConfig.getTwillioURl()}/video-token?identity=$identity"
-        val stringRequest = StringRequest(
-            Request.Method.GET, url,
-            { response ->
-                Log.i(TAG, String.format(response.toString()))
-                val jsonObject =
-                    JSONTokener(String.format(response.toString())).nextValue() as JSONObject
 
-                val accessToken = jsonObject.getString("token")
-                Log.d("ACCESS TOKEN", accessToken)
-                connectToRoom(roomName = roomCode, accessToken = accessToken)
 
-            },
-            {
-                Log.d(TAG, "Error: ${it?.message}")
-                Log.d(
-                    TAG,
-                    String.format(it.networkResponse?.data?.decodeToString() ?: "Error")
-                )
-                setIsLoading(false)
+        // Create Video grant
+        val grant = VideoGrant().setRoom(roomCode)
 
-                Toast.makeText(this@ScreenSharingActivity, "Failed to connect.", Toast.LENGTH_SHORT)
-                    .show()
-                stopCapture()
-            })
-        queue.add(stringRequest)
+
+        // Create access token
+        val token: AccessToken = AccessToken.Builder(
+                BuildConfig.TWILIO_ACCOUNT_SID,
+                BuildConfig.TWILIO_API_KEY,
+                BuildConfig.TWILIO_API_SECRET
+        ).identity(identity).grant(grant).build()
+
+        connectToRoom(roomName = roomCode, accessToken = token.toJwt())
+
+//        val url = "https://prune-antelope-6809.twil.io/video-token?identity=$identity"
+//        val stringRequest = StringRequest(
+//            Request.Method.GET, url,
+//            { response ->
+//                Log.i(TAG, String.format(response.toString()))
+//                val jsonObject =
+//                    JSONTokener(String.format(response.toString())).nextValue() as JSONObject
+//
+//                val accessToken = jsonObject.getString("token")
+//                Log.d("ACCESS TOKEN", accessToken)
+//
+//
+//            },
+//            {
+//                Log.d(TAG, "Error: ${it?.message}")
+//                Log.d(
+//                    TAG,
+//                    String.format(it.networkResponse?.data?.decodeToString() ?: "Error")
+//                )
+//                setIsLoading(false)
+//
+//                Toast.makeText(this@ScreenSharingActivity, "Failed to connect.", Toast.LENGTH_SHORT)
+//                    .show()
+//                stopCapture()
+//            })
+//        queue.add(stringRequest)
     }
 
     private fun generateScreenSharingCode() {
@@ -784,7 +819,7 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
         return object : RemoteParticipant.Listener {
             override fun onAudioTrackPublished(
                 remoteParticipant: RemoteParticipant,
-                remoteAudioTrackPublication: RemoteAudioTrackPublication
+                remoteAudioTrackPublication: RemoteAudioTrackPublication,
             ) {
 
                 Log.d(TAG, "onLocalAudioTrackPublished")
@@ -792,14 +827,14 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
 
             override fun onAudioTrackUnpublished(
                 remoteParticipant: RemoteParticipant,
-                remoteAudioTrackPublication: RemoteAudioTrackPublication
+                remoteAudioTrackPublication: RemoteAudioTrackPublication,
             ) {
             }
 
             override fun onAudioTrackSubscribed(
                 remoteParticipant: RemoteParticipant,
                 remoteAudioTrackPublication: RemoteAudioTrackPublication,
-                remoteAudioTrack: RemoteAudioTrack
+                remoteAudioTrack: RemoteAudioTrack,
             ) {
                 Log.d(TAG, "onLocalAudioTrackSubscribed")
                 remoteAudioTrack.enablePlayback(true)
@@ -813,20 +848,20 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
             override fun onAudioTrackSubscriptionFailed(
                 remoteParticipant: RemoteParticipant,
                 remoteAudioTrackPublication: RemoteAudioTrackPublication,
-                twilioException: TwilioException
+                twilioException: TwilioException,
             ) {
             }
 
             override fun onAudioTrackUnsubscribed(
                 remoteParticipant: RemoteParticipant,
                 remoteAudioTrackPublication: RemoteAudioTrackPublication,
-                remoteAudioTrack: RemoteAudioTrack
+                remoteAudioTrack: RemoteAudioTrack,
             ) {
             }
 
             override fun onVideoTrackPublished(
                 remoteParticipant: RemoteParticipant,
-                remoteVideoTrackPublication: RemoteVideoTrackPublication
+                remoteVideoTrackPublication: RemoteVideoTrackPublication,
             ) {
 
 
@@ -834,7 +869,7 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
 
             override fun onVideoTrackUnpublished(
                 remoteParticipant: RemoteParticipant,
-                remoteVideoTrackPublication: RemoteVideoTrackPublication
+                remoteVideoTrackPublication: RemoteVideoTrackPublication,
             ) {
                 Log.d("UNPUBLISHED", "TRACK WAS UNPUBLISHED")
                 Log.d("UNPUBLISHED", remoteVideoTrackPublication.trackName)
@@ -844,7 +879,7 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
             override fun onVideoTrackSubscribed(
                 participant: RemoteParticipant,
                 remoteVideoTrackPublication: RemoteVideoTrackPublication,
-                remoteVideoTrack: RemoteVideoTrack
+                remoteVideoTrack: RemoteVideoTrack,
             ) {
 
 
@@ -853,7 +888,7 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
             override fun onVideoTrackSubscriptionFailed(
                 remoteParticipant: RemoteParticipant,
                 remoteVideoTrackPublication: RemoteVideoTrackPublication,
-                twilioException: TwilioException
+                twilioException: TwilioException,
             ) {
 
             }
@@ -861,27 +896,27 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
             override fun onVideoTrackUnsubscribed(
                 remoteParticipant: RemoteParticipant,
                 remoteVideoTrackPublication: RemoteVideoTrackPublication,
-                remoteVideoTrack: RemoteVideoTrack
+                remoteVideoTrack: RemoteVideoTrack,
             ) {
 
             }
 
             override fun onDataTrackPublished(
                 remoteParticipant: RemoteParticipant,
-                remoteDataTrackPublication: RemoteDataTrackPublication
+                remoteDataTrackPublication: RemoteDataTrackPublication,
             ) {
             }
 
             override fun onDataTrackUnpublished(
                 remoteParticipant: RemoteParticipant,
-                remoteDataTrackPublication: RemoteDataTrackPublication
+                remoteDataTrackPublication: RemoteDataTrackPublication,
             ) {
             }
 
             override fun onDataTrackSubscribed(
                 remoteParticipant: RemoteParticipant,
                 remoteDataTrackPublication: RemoteDataTrackPublication,
-                remoteDataTrack: RemoteDataTrack
+                remoteDataTrack: RemoteDataTrack,
             ) {
                 /*
                  * Data track messages are received on the thread that calls setListener. Post the
@@ -897,14 +932,14 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
             override fun onDataTrackSubscriptionFailed(
                 remoteParticipant: RemoteParticipant,
                 remoteDataTrackPublication: RemoteDataTrackPublication,
-                twilioException: TwilioException
+                twilioException: TwilioException,
             ) {
             }
 
             override fun onDataTrackUnsubscribed(
                 remoteParticipant: RemoteParticipant,
                 remoteDataTrackPublication: RemoteDataTrackPublication,
-                remoteDataTrack: RemoteDataTrack
+                remoteDataTrack: RemoteDataTrack,
             ) {
 
 
@@ -912,25 +947,25 @@ class ScreenSharingActivity : AppCompatActivity(), StartForegroundServiceCallbac
 
             override fun onAudioTrackEnabled(
                 remoteParticipant: RemoteParticipant,
-                remoteAudioTrackPublication: RemoteAudioTrackPublication
+                remoteAudioTrackPublication: RemoteAudioTrackPublication,
             ) {
             }
 
             override fun onAudioTrackDisabled(
                 remoteParticipant: RemoteParticipant,
-                remoteAudioTrackPublication: RemoteAudioTrackPublication
+                remoteAudioTrackPublication: RemoteAudioTrackPublication,
             ) {
             }
 
             override fun onVideoTrackEnabled(
                 remoteParticipant: RemoteParticipant,
-                remoteVideoTrackPublication: RemoteVideoTrackPublication
+                remoteVideoTrackPublication: RemoteVideoTrackPublication,
             ) {
             }
 
             override fun onVideoTrackDisabled(
                 remoteParticipant: RemoteParticipant,
-                remoteVideoTrackPublication: RemoteVideoTrackPublication
+                remoteVideoTrackPublication: RemoteVideoTrackPublication,
             ) {
             }
         }

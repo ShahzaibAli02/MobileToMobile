@@ -26,12 +26,10 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.playsync.mirroring.BuildConfig.APPLICATION_ID
 import com.playsync.mirroring.R
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.playsync.mirroring.BuildConfig
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -65,14 +63,6 @@ fun Context.getLoadingDialog(): Dialog {
     dialog.setCancelable(false)
     dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     return dialog
-}
-
-fun saveIsProInSharedPreferences(isPro: Boolean, activity: Activity) {
-    val sharedPreferences = activity.getSharedPreferences(
-        "${APPLICATION_ID}SharedPreferences",
-        Context.MODE_PRIVATE
-    )
-    sharedPreferences.edit().putBoolean("isPro", isPro).apply()
 }
 
 
@@ -159,25 +149,9 @@ fun Context.isNetworkAvailable(): Boolean {
 }
 
 
-@Suppress("DEPRECATION")
-fun Context.verifyInstallerId(): Boolean {
-
-    return if (BuildConfig.DEBUG) {
-        true
-    } else {
-        val validInstallers: List<String> =
-            ArrayList(listOf("com.android.vending", "com.google.android.feedback"))
-        val installer = this.packageManager.getInstallerPackageName(this.packageName)
-        return installer != null && validInstallers.contains(installer)
-    }
-}
 
 fun Activity.checkIfUserIsPro(): Boolean {
-    val sharedPreferences = this.getSharedPreferences(
-        "${APPLICATION_ID}SharedPreferences",
-        Context.MODE_PRIVATE
-    )
-    return sharedPreferences.getBoolean("isPro", false)
+    return true
 
 }
 

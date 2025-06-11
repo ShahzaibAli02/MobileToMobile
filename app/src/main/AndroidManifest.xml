@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"/>
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <application
         android:name=".ui.base.App"
         android:allowBackup="true"
@@ -31,11 +31,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ui.main.PremiumActivity"
-            android:configChanges="uiMode|fontScale|fontWeightAdjustment|colorMode"
-            android:exported="false"
-            android:screenOrientation="portrait" />
 
         <activity
             android:name=".ui.main.DashboardActivity"
@@ -62,9 +57,6 @@
             android:screenOrientation="portrait" />
 
         <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="${admob_app_id}" />
-        <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
@@ -74,6 +66,7 @@
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="mediaProjection" />
+
         <service android:name=".data.service.GlobalTouchService" />
 
     </application>

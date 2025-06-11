@@ -1,14 +1,24 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id ("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
 }
-
+// Load local.properties
+val localProperties2 : Properties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists())
+    {
+        load(file.inputStream())
+    }
+}
 android {
-    namespace = "com.playsync.mirroring"
-    compileSdk = 34
 
+
+        namespace = "com.playsync.mirroring"
+    compileSdk = 34
     defaultConfig {
         applicationId = "com.playsync.mirroring"
         minSdk = 24
@@ -17,6 +27,9 @@ android {
         versionName = "1.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "TWILIO_ACCOUNT_SID", "\"${localProperties2.getProperty("TWILIO_ACCOUNT_SID")}\"")
+        buildConfigField("String", "TWILIO_API_KEY", "\"${localProperties2.getProperty("TWILIO_API_KEY")}\"")
+        buildConfigField("String", "TWILIO_API_SECRET", "\"${localProperties2.getProperty("TWILIO_API_SECRET")}\"")
     }
 
     buildTypes {
@@ -25,23 +38,23 @@ android {
 
 //            applicationIdSuffix = ".debug"
             isMinifyEnabled = false
-            manifestPlaceholders+= mapOf("admob_app_id" to "ca-app-pub-3477055393019732~3736001735")
             buildConfigField(type="String",name="PRIVACY_POLICY", value = "\"https://sites.google.com/view/m2mprivacypolicy\"")
 
             proguardFiles (getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
         release {
             isMinifyEnabled = false
-            manifestPlaceholders+= mapOf("admob_app_id" to "ca-app-pub-3477055393019732~3736001735")
             buildConfigField(type="String",name="PRIVACY_POLICY", value = "" +
-                    "\"https://sites.google.com/view/m2mprivacypolicy\"")
+                    "\"https://google.com\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
     }
-
+    packaging {
+        resources.excludes.add("META-INF/DEPENDENCIES")
+    }
     /*
 
     keyeAlias=key0m2m
@@ -77,7 +90,8 @@ dependencies {
     implementation ("com.airbnb.android:lottie:3.4.2")
 
     //Screen sharing
-    implementation ("com.twilio:video-android:7.3.0")
+    implementation ("com.twilio:video-android:7.8.0")
+    implementation("com.twilio.sdk:twilio:10.6.10")
 
     //to send http requests
     implementation ("com.android.volley:volley:1.2.1")
@@ -89,11 +103,7 @@ dependencies {
     implementation ("com.google.firebase:firebase-config-ktx")
     implementation ("com.google.firebase:firebase-messaging-ktx")
 
-    //billing
-    implementation ("com.android.billingclient:billing:6.1.0")
 
-    //admob
-    implementation ("com.google.android.gms:play-services-ads:22.6.0")
 
     //Gson
     implementation ("com.google.code.gson:gson:2.10.1")

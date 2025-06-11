@@ -22,15 +22,17 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.playsync.mirroring.BuildConfig
 import com.playsync.mirroring.R
 import com.playsync.mirroring.data.interfaces.RoomListenerHandler
 import com.playsync.mirroring.databinding.ActivityRemoteCodeBinding
-import com.playsync.mirroring.utils.RemoteDataConfig
 import com.playsync.mirroring.utils.gone
 import com.playsync.mirroring.utils.visible
 import com.playsync.mirroring.utils.getLoadingDialog
 import com.playsync.mirroring.utils.getRandomString
 import com.playsync.mirroring.utils.singleClick
+import com.twilio.jwt.accesstoken.AccessToken
+import com.twilio.jwt.accesstoken.VideoGrant
 import com.twilio.video.ConnectOptions
 import com.twilio.video.LocalDataTrack
 import com.twilio.video.RemoteParticipant
@@ -292,27 +294,41 @@ class RemoteCodeActivity : AppCompatActivity(), View.OnClickListener {
         val identity = getRandomString(8)
 
         setIsLoading(true)
-        val url = "${RemoteDataConfig.getTwillioURl()}/video-token?identity=$identity"
-        val stringRequest = StringRequest(
-            Request.Method.GET, url,
-            { response ->
-                val jsonObject =
-                    JSONTokener(String.format(response.toString())).nextValue() as JSONObject
 
-                val accessToken = jsonObject.getString("token")
-                Log.d("ACCESS TOKEN", accessToken)
-                connectToRoom(roomName = roomCode, accessToken = accessToken)
-            },
-            {
-                Log.d(TAG, "Error: ${it?.message}")
-                Log.d(
-                    TAG,
-                    String.format(it.networkResponse?.data?.decodeToString() ?: "Error")
-                )
-                setIsLoading(false)
-                //binding?.btnConnect?.isEnabled = true
-            })
-        queue.add(stringRequest)
+
+        // Create Video grant
+        val grant = VideoGrant().setRoom(roomCode)
+
+
+        // Create access token
+        val token: AccessToken = AccessToken.Builder(
+                BuildConfig.TWILIO_ACCOUNT_SID,
+                BuildConfig.TWILIO_API_KEY,
+                BuildConfig.TWILIO_API_SECRET
+        ).identity(identity).grant(grant).build()
+        connectToRoom(roomName = roomCode, accessToken = token.toJwt())
+
+//        val url = "https://prune-antelope-6809.twil.io/video-token?identity=$identity"
+//        val stringRequest = StringRequest(
+//            Request.Method.GET, url,
+//            { response ->
+//                val jsonObject =
+//                    JSONTokener(String.format(response.toString())).nextValue() as JSONObject
+//
+//                val accessToken = jsonObject.getString("token")
+//                Log.d("ACCESS TOKEN", accessToken)
+//                connectToRoom(roomName = roomCode, accessToken = accessToken)
+//            },
+//            {
+//                Log.d(TAG, "Error: ${it?.message}")
+//                Log.d(
+//                    TAG,
+//                    String.format(it.networkResponse?.data?.decodeToString() ?: "Error")
+//                )
+//                setIsLoading(false)
+//                //binding?.btnConnect?.isEnabled = true
+//            })
+//        queue.add(stringRequest)
     }
 
     private fun connectToRoom(roomName: String, accessToken: String) {

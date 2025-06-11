@@ -10,14 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.playsync.mirroring.BuildConfig
 import com.playsync.mirroring.BuildConfig.APPLICATION_ID
 import com.playsync.mirroring.R
-import com.playsync.mirroring.data.admob.AdmobBanner
-import com.playsync.mirroring.data.admob.AdmobInter
 import com.playsync.mirroring.databinding.ActivityDashboardBinding
-import com.playsync.mirroring.ui.dialogs.AdmobLoadingDialog
 import com.playsync.mirroring.ui.dialogs.ColorPickerDialog
 import com.playsync.mirroring.ui.dialogs.ExitDialog
 import com.playsync.mirroring.ui.dialogs.FeedBackDialog
-import com.playsync.mirroring.utils.RemoteDataConfig
 import com.playsync.mirroring.utils.afterDelay
 import com.playsync.mirroring.utils.gone
 import com.playsync.mirroring.utils.visible
@@ -37,41 +33,8 @@ class DashboardActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(binding.root)
         setClickListeners()
 
-        if (RemoteDataConfig.remoteAdSettings.dash_banner.value == "on"
-            && !checkIfUserIsPro()
-        ) {
-            AdmobBanner.getInstance()
-                .loadAd(this@DashboardActivity, RemoteDataConfig.getAdmobBannerId(),
-                    {
-                        //load listener
-                        binding.bannerFrame.visible()
-                        AdmobBanner.getInstance()
-                            .showBannerAd(this@DashboardActivity, binding.bannerFrame)
-                    },
-                    {
-                        //failed listener
-                    })
-        } else {
-            binding.bannerFrame.gone()
-        }
-        if(!checkIfUserIsPro() && intent.getBooleanExtra("isFromSplash",false))
-        {
-            val loadingDialog = AdmobLoadingDialog(this@DashboardActivity)
-            loadingDialog.show()
-            afterDelay(2000) {
-                loadingDialog.dismiss()
-                AdmobInter.showAdmobInter(this@DashboardActivity,
-                        {
-                            //impression listener
-                        },
-                        {
-                            // dismissed listener
-                        },
-                        {
-                            //failed listener
-                        })
-            }
-        }
+
+        binding.bannerFrame.gone()
         binding.apply {
 
             toolbar.drawerIcon.setOnClickListener {
@@ -100,9 +63,6 @@ class DashboardActivity : AppCompatActivity(), View.OnClickListener {
 
                     }
 
-                    R.id.navPremium -> {
-                        startActivity(Intent(this@DashboardActivity,PremiumActivity::class.java))
-                    }
 
                     R.id.navFeedback -> {
 
@@ -157,88 +117,23 @@ class DashboardActivity : AppCompatActivity(), View.OnClickListener {
             when (p0) {
                 cardShareScreen -> {
                     singleClick {
-                        if (RemoteDataConfig.remoteAdSettings.share_dash_inter.value == "on"
-                            && !checkIfUserIsPro()
-                        ) {
-                            val loadingDialog = AdmobLoadingDialog(this@DashboardActivity)
-                            loadingDialog.show()
-                            afterDelay(2000){
-                                loadingDialog.dismiss()
-                                AdmobInter.showAdmobInter(this@DashboardActivity,
-                                    {
-                                        //impression listener
-                                    },
-                                    {
-                                        // dismissed listener
-                                        startActivity(
-                                            Intent(
-                                                this@DashboardActivity,
-                                                ScreenSharingActivity::class.java
-                                            )
-                                        )
-                                    },
-                                    {
-                                        //failed listener
-                                        startActivity(
-                                            Intent(
-                                                this@DashboardActivity,
-                                                ScreenSharingActivity::class.java
-                                            )
-                                        )
-                                    })
-                            }
-                        } else {
-                            startActivity(
+                        startActivity(
                                 Intent(
-                                    this@DashboardActivity,
-                                    ScreenSharingActivity::class.java
+                                        this@DashboardActivity,
+                                        ScreenSharingActivity::class.java
                                 )
-                            )
-                        }
-
+                        )
                     }
                 }
 
                 remoteScreen -> {
                     singleClick {
-                        if (RemoteDataConfig.remoteAdSettings.share_dash_inter.value == "on"
-                            && !checkIfUserIsPro()
-                        ) {
-                            val loadingDialog = AdmobLoadingDialog(this@DashboardActivity)
-                            loadingDialog.show()
-                            afterDelay(2000) {
-                                loadingDialog.dismiss()
-                                AdmobInter.showAdmobInter(this@DashboardActivity,
-                                    {
-                                        //impression listener
-                                    },
-                                    {
-                                        // dismissed listener
-                                        startActivity(
-                                            Intent(
-                                                this@DashboardActivity,
-                                                RemoteCodeActivity::class.java
-                                            )
-                                        )
-                                    },
-                                    {
-                                        //failed listener
-                                        startActivity(
-                                            Intent(
-                                                this@DashboardActivity,
-                                                RemoteCodeActivity::class.java
-                                            )
-                                        )
-                                    })
-                            }
-                        } else {
-                            startActivity(
+                        startActivity(
                                 Intent(
-                                    this@DashboardActivity,
-                                    RemoteCodeActivity::class.java
+                                        this@DashboardActivity,
+                                        RemoteCodeActivity::class.java
                                 )
-                            )
-                        }
+                        )
                     }
                 }
             }
