@@ -44,6 +44,6 @@ TWILIO_API_SECRET=your_api_secret_here
 
 ![Screenshot1](screenshots/ss1.png)
 
-![Screenshot2](screenshots/ss2.png)
+![Screenshot2](screenshots/ss2.jpeg)
 
-![Screenshot3](screenshots/ss3.png)
+![Screenshot3](screenshots/ss3.jpeg)
